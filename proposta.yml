@@ -82,12 +82,12 @@ feign:
 opentracing:
   jaeger:
     enabled: ${JAEGER_ENABLED:true}
-    service-name:
-      ${spring:application:name}
+    service-name: ${spring:application:name}
     http-sender:
       url: ${JAEGER_ENDPOINT:http://localhost:14268/api/traces}
     probabilistic-sampler:
       sampling-rate: ${JAEGER_SAMPLER:1}
+  spring:  
     cloud:
       jdbc:
         enabled: false
