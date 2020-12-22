@@ -1,0 +1,76 @@
+eureka:
+    client:
+        fetch-registry: true
+        healthcheck:
+            enabled: true
+        register-with-eureka: true
+        serviceUrl:
+            defaultZone: http://localhost:8761/eureka
+feign:
+    url-cartao: ${URL_CARTAO:http://localhost:8889}
+    url-transacao: ${URL_TRANSACAO:http://localhost:7777}
+management:
+    endpoint:
+        prometheus:
+            enabled: true
+    endpoints:
+        web:
+            exposure:
+                exclude: env,beans
+                include: info,health,prometheus, metrics
+    metrics:
+        export:
+            prometheus:
+                enabled: true
+opentracing:
+    jaeger:
+        enabled: ${JAEGER_ENABLED:true}
+        http-sender:
+            url: ${JAEGER_ENDPOINT:http://localhost:14268/api/traces}
+        probabilistic-sampler:
+            sampling-rate: ${JAEGER_SAMPLER:1}
+        service-name: ${spring.application.name}
+    spring:
+        cloud:
+            jdbc:
+                enabled: false
+server:
+    port: 8081
+spring:
+    application:
+        name: transacao
+    datasource:
+        hikari:
+            connection-timeout: 30000
+            idle-timeout: 600000
+            initialization-fail-timeout: 2000
+            isolate-internal-queries: true
+            max-lifetime: 1800000
+            maximum-pool-size: 15
+            minimum-idle: 8
+            validation-timeout: 3000
+        password: ${DB_PASSWORD:password}
+        url: ${URL_DATABASE:jdbc:postgresql://localhost:5432/transacao}
+        username: ${DB_USER:keycloak}
+    jpa:
+        hibernate:
+            ddl-auto: ${JPA_DDL:update}
+        show-sql: ${SHOW_SQL:true}
+    kafka:
+        bootstrap-servers: ${KAFKA_HOST:localhost:9092}
+        consumer:
+            auto-commit-interval: 5000
+            auto-offset-reset: ${KAFKA_AUTO-OFFSET-RESET:latest}
+            enable-auto-commit: true
+            group-id: ${KAFKA_CONSUMER_GROUP_ID:aplicacao_transacao}
+            key-deserializer: org.apache.kafka.common.serialization.StringSerializer
+            value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+        topic:
+            cartao: ${TOPIC_CARTAO:cartao}
+            transactions: ${TOPIC_TRANSACTIONS:transacoes}
+    security:
+        oauth2:
+            resourceserver:
+                jwt:
+                    issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:18080/auth/realms/nossa-transacao}
+                    jwk-set-uri: ${KEYCLOAK_JWKS_URI:http://localhost:18080/auth/realms/nossa-transacao/protocol/openid-connect/certs}
