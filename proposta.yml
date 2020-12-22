@@ -1,13 +1,6 @@
-### Nome da aplica��o ###
-spring:
-  application:
-    name: proposta
-  profiles:
-    active: dev
 
 server:
   port: 8080
-
 
 eureka:
   client:
@@ -16,3 +9,89 @@ eureka:
     serviceUrl: 
       defaultZone: ${EUREKA_DEFAULTZONE:http://localhost:8761/eureka}
     healthcheck.enabled: true
+
+### Nome da aplica��o ###
+spring:
+  application:
+    name: proposta
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/proposta}
+    username: ${DB_USER:keycloak}
+    password: ${DB_PASSWORD:password}
+    hikari:
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      maximum-pool-size: 15
+      minimum-idle: 8
+      initialization-fail-timeout: 2000
+      isolate-internal-queries: true
+      validation-timeout: 3000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:18080/auth/realms/nossa-proposta}
+          jwk-set-uri: ${KEYCLOAK_JWKS_URI:http://localhost:18080/auth/realms/nossa-proposta/protocol/openid-connect/certs}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST:localhost:9092}
+    producer:
+      key-deserializer: org:apache:kafka:common:serialization:StringSerializer
+      value-deserializer: org:springframework:kafka:support:serializer:JsonDeserializer
+
+
+  ### Health Care ###
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info,health,prometheus, metrics
+        exclude: env,beans
+  prometheus:
+    enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      aplicacao: ${NOME_DA_APLICACAO:servico de proposta}
+      ambiente: ${AMBIENTE:desenvolvimento}
+
+  ### Scheduled ###
+periodicidade:
+  verifica-cartao-criado: ${TEMPO_VERIFICA_CARTAO:10000}
+
+
+feign:
+  httpclient:
+    enabled: true
+    connection-timeout: 2000
+    max-connections : 100
+  url-cartao: ${URL_SERVICE_CARTAO:http://localhost:8888}
+  url-analise: ${URL_ANALISE_PROPOSTA:http://localhost:9999}
+
+  ### OpenTracing ###
+opentracing:
+  jaeger:
+    enabled: ${JAEGER_ENABLED:true}
+    service-name:
+      ${spring:application:name}
+    http-sender:
+      url: ${JAEGER_ENDPOINT:http://localhost:14268/api/traces}
+    probabilistic-sampler:
+      sampling-rate: ${JAEGER_SAMPLER:1}
+    cloud:
+      jdbc:
+        enabled: false
+
+  #### Kafka
+topic:
+    cartao-proposta-name: ${TOPIC_CARTAO:cartao}
