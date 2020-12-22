@@ -75,7 +75,7 @@ feign:
     enabled: true
     connection-timeout: 2000
     max-connections : 100
-  url-cartao: ${URL_SERVICE_CARTAO:http://localhost:8888}
+  url-cartao: ${URL_SERVICE_CARTAO:http://localhost:8889}
   url-analise: ${URL_ANALISE_PROPOSTA:http://localhost:9999}
 
   ### OpenTracing ###
